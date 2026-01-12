@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  READ_ONLY
+}
+
+enum WalletType {
+  USDC
+  COPW
+}
+
+enum FiatCurrency {
+  USD
+  CHF
+  COP
+}
+
+enum TransactionType {
+  BANK_TRANSFER
+  NATIONAL_ATM
+  INTERNATIONAL_ATM
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  role      Role     @default(READ_ONLY)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  wallets Wallet[]
+  
+  @@map("users")
+}
+
+model Wallet {
+  id        String     @id @default(uuid())
+  userId    String
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      WalletType
+  createdAt DateTime   @default(now())
+  
+  recharges Recharge[]
+  
+  @@unique([userId, type])
+  @@map("wallets")
+}
+
+model Recharge {
+  id              String          @id @default(uuid())
+  walletId        String
+  wallet          Wallet          @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  fiatAmount      Decimal         @db.Decimal(20, 2)
+  fiatCurrency    FiatCurrency
+  cryptoAmount    Decimal         @db.Decimal(20, 8)
+  transactionType TransactionType
+  transactionCost Decimal         @db.Decimal(20, 2)
+  exchangeRate    Decimal         @db.Decimal(20, 8)
+  createdAt       DateTime        @default(now())
+  
+  @@index([walletId])
+  @@map("recharges")
+}

@@ -1,0 +1,319 @@
+### Variables
+@baseUrl = http://localhost:3000
+@adminUserId = c612219c-6bff-466e-af4a-3945c0a5b908
+@readOnlyUserId = df752683-769e-4631-8c32-c7307cfc60ae
+
+### ============================================
+### CREAR RECARGAS (POST /recharges)
+### Solo permitido para rol ADMIN
+### ============================================
+
+### 1. Crear recarga USDC - USD con transferencia bancaria (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 2. Crear recarga USDC - CHF con ATM nacional (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 250.50,
+  "fiatCurrency": "CHF",
+  "transactionType": "NATIONAL_ATM"
+}
+
+### 3. Crear recarga USDC - COP con ATM internacional (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 500000,
+  "fiatCurrency": "COP",
+  "transactionType": "INTERNATIONAL_ATM"
+}
+
+### 4. Crear recarga COPW - COP con transferencia bancaria (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 1000000,
+  "fiatCurrency": "COP",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 5. Crear recarga COPW - USD con ATM nacional (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 200,
+  "fiatCurrency": "USD",
+  "transactionType": "NATIONAL_ATM"
+}
+
+### 6. Crear recarga COPW - CHF con ATM internacional (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 500,
+  "fiatCurrency": "CHF",
+  "transactionType": "INTERNATIONAL_ATM"
+}
+
+### 7. Intentar crear recarga con usuario READ_ONLY (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{readOnlyUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 8. Crear recarga con monto pequeño (ADMIN)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 0.01,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### ============================================
+### LISTAR RECARGAS (GET /recharges)
+### Permitido para rol ADMIN y READ_ONLY
+### NOTA: READ_ONLY es un rol de auditoría que puede ver TODAS las recargas del sistema
+### ============================================
+
+### 9. Listar TODAS las recargas del sistema (sin filtro)
+GET {{baseUrl}}/recharges
+Content-Type: application/json
+
+### 10. Listar recargas del usuario ADMIN específicamente
+GET {{baseUrl}}/recharges?userId={{adminUserId}}
+Content-Type: application/json
+
+### 11. Listar recargas del usuario READ_ONLY específicamente
+GET {{baseUrl}}/recharges?userId={{readOnlyUserId}}
+Content-Type: application/json
+
+### ============================================
+### CASOS DE ERROR / VALIDACIÓN
+### ============================================
+
+### 13. Crear recarga con monto negativo (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": -100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 14. Crear recarga con moneda inválida (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "EUR",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 15. Crear recarga con wallet inválido (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "BTC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 16. Crear recarga con tipo de transacción inválido (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "PAYPAL"
+}
+
+### 17. Crear recarga sin userId (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 18. Crear recarga con userId que no existe (DEBE FALLAR)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "usuario-inexistente-123",
+  "walletType": "USDC",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 19. Listar todas las recargas sin filtro (válido para auditoría)
+GET {{baseUrl}}/recharges
+Content-Type: application/json
+
+### ============================================
+### ESCENARIOS DE CONVERSIÓN Y COSTOS
+### ============================================
+
+### 20. Conversión USD -> USDC (tasa 1:1)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 1000,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 21. Conversión CHF -> USDC (tasa 0.92)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 1000,
+  "fiatCurrency": "CHF",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 22. Conversión COP -> USDC (tasa 0.00025)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 4000000,
+  "fiatCurrency": "COP",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 23. Conversión USD -> COPW (tasa 1:4000)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 100,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 24. Conversión CHF -> COPW (tasa 0.92:4000)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 100,
+  "fiatCurrency": "CHF",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 25. Conversión COP -> COPW (tasa 1:1)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "COPW",
+  "fiatAmount": 5000000,
+  "fiatCurrency": "COP",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### ============================================
+### COSTOS DE TRANSACCIÓN
+### ============================================
+
+### 26. Costo transferencia bancaria (1% del monto)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 1000,
+  "fiatCurrency": "USD",
+  "transactionType": "BANK_TRANSFER"
+}
+
+### 27. Costo ATM nacional ($2.5 fijo)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 1000,
+  "fiatCurrency": "USD",
+  "transactionType": "NATIONAL_ATM"
+}
+
+### 28. Costo ATM internacional ($5 fijo + 2% del monto)
+POST {{baseUrl}}/recharges
+Content-Type: application/json
+
+{
+  "userId": "{{adminUserId}}",
+  "walletType": "USDC",
+  "fiatAmount": 1000,
+  "fiatCurrency": "USD",
+  "transactionType": "INTERNATIONAL_ATM"
+}
+
